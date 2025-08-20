@@ -1,0 +1,7 @@
+class {{CLASS_NAME}} {
+  const {{CLASS_NAME}}();
+
+  void sayHello() {
+    print('Hello This is a {{CLASS_NAME}} class');
+  }
+}
