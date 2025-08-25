@@ -1,0 +1,12 @@
+1
+ali
+nawab
+3000
+Multan
+
+2
+ali
+hammad
+2005
+Pakistan
+
