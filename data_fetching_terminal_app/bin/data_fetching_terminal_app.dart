@@ -13,9 +13,9 @@ void main(List<String> arguments) async {
       throw NoArgumentException(
         "No Argumnet is provided!!!Following arguments are required:\n1. Service: (1) -f: files (2) -s: server\n2. Operation: (1) -u: Create user. (2) --find: Find user by ID. (3) --list: List all users. (4) --del: Delete user by ID. (5) --del-all: Delete all users. (6) --up: Update user by ID\n3. Relevant operation input i.e: Id or user data.",
       );
-    } else if (arguments[0] != '-f' && arguments[0] != '-s') {
+    } else if (arguments[0] != '-f') {
       throw InvalidServiceException(
-        'The provided service is not valid. Please Provide one of the following:\n(1) -f: files (2) -s: server',
+        'The provided service is not valid. Please Provide one of the following:\n(1) -f: files',
       );
     }
 
@@ -40,9 +40,9 @@ void main(List<String> arguments) async {
       userFile: userFileDirectory,
       idsFile: idsFileDirectory,
     );
-    ServerUserRepository serverUserRepository = ServerUserRepository(
-      baseUrl: '',
-    );
+    // ServerUserRepository serverUserRepository = ServerUserRepository(
+    //   baseUrl: '',
+    // );
 
     if (arguments[0] == '-f') {
       userFileDirectory = File(
@@ -63,11 +63,12 @@ void main(List<String> arguments) async {
         userFile: userFileDirectory,
         idsFile: idsFileDirectory,
       );
-    } else {
-      serverUserRepository = ServerUserRepository(
-        baseUrl: 'https://api.restful-api.dev/objects',
-      );
     }
+    // else {
+    //   serverUserRepository = ServerUserRepository(
+    //     baseUrl: 'https://api.restful-api.dev/objects',
+    //   );
+    // }
     if (arguments[1] == '-u') {
       if (arguments.length == 2) {
         throw UserInputException(
@@ -91,9 +92,11 @@ void main(List<String> arguments) async {
 
       print('User = ${user.toString()}');
 
-      final isUserCreated = arguments[0] == '-f'
-          ? await userFileRepo.createUser(user)
-          : await serverUserRepository.createUser(user);
+      // final isUserCreated = arguments[0] == '-f'
+      //     ? await userFileRepo.createUser(user)
+      //     : await serverUserRepository.createUser(user);
+
+      final isUserCreated = await userFileRepo.createUser(user);
 
       if (!isUserCreated) {
         print('Failed to create the User');
@@ -101,9 +104,11 @@ void main(List<String> arguments) async {
       }
       print('User Created Successfully');
     } else if (arguments[1] == '--list') {
-      final allUsers = arguments[0] == '-f'
-          ? await userFileRepo.getAllUser()
-          : await serverUserRepository.getAllUser();
+      // final allUsers = arguments[0] == '-f'
+      //     ? await userFileRepo.getAllUser()
+      //     : await serverUserRepository.getAllUser();
+
+      final allUsers = await userFileRepo.getAllUser();
 
       if (allUsers.isEmpty) {
         print('No User is Found');
@@ -114,9 +119,11 @@ void main(List<String> arguments) async {
     } else if (arguments[1] == '--find') {
       final userID = isValidint(arguments[2]);
 
-      final user = arguments[0] == '-f'
-          ? await userFileRepo.getUserByID(userID)
-          : await serverUserRepository.getUserByID(userID);
+      // final user = arguments[0] == '-f'
+      //     ? await userFileRepo.getUserByID(userID)
+      //     : await serverUserRepository.getUserByID(userID);
+
+      final user = await userFileRepo.getUserByID(userID);
 
       if (user == null) {
         throw NoUserException('No User with id: $userID is Found');
@@ -148,9 +155,11 @@ void main(List<String> arguments) async {
 
       final userID = isValidint(arguments[2]);
 
-      final isUpdated = arguments[0] == '-f'
-          ? await userFileRepo.updateUser(userID, user)
-          : await serverUserRepository.updateUser(userID, user);
+      // final isUpdated = arguments[0] == '-f'
+      //     ? await userFileRepo.updateUser(userID, user)
+      //     : await serverUserRepository.updateUser(userID, user);
+
+      final isUpdated = await userFileRepo.updateUser(userID, user);
 
       if (!isUpdated) {
         throw NoUserException(
@@ -161,9 +170,11 @@ void main(List<String> arguments) async {
     } else if (arguments[1] == '--del') {
       final userID = isValidint(arguments[2]);
 
-      final isDeleted = arguments[0] == '-f'
-          ? await userFileRepo.deleteUser(userID)
-          : await serverUserRepository.deleteUser(userID);
+      // final isDeleted = arguments[0] == '-f'
+      //     ? await userFileRepo.deleteUser(userID)
+      //     : await serverUserRepository.deleteUser(userID);
+
+      final isDeleted = await userFileRepo.deleteUser(userID);
 
       if (!isDeleted) {
         throw NoUserException(
@@ -172,9 +183,11 @@ void main(List<String> arguments) async {
       }
       print('User Deleted Successfully');
     } else if (arguments[1] == '--del-all') {
-      final isAllDeleted = arguments[0] == '-f'
-          ? await userFileRepo.deleteAllUser()
-          : await serverUserRepository.deleteAllUser();
+      // final isAllDeleted = arguments[0] == '-f'
+      //     ? await userFileRepo.deleteAllUser()
+      //     : await serverUserRepository.deleteAllUser();
+
+      final isAllDeleted = await userFileRepo.deleteAllUser();
 
       if (!isAllDeleted) {
         print('Failed to delete all Users');
