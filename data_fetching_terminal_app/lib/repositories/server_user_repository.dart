@@ -64,6 +64,8 @@ class ServerUserRepository implements UserRepository {
       final url = Uri.parse('$baseUrl/$id');
       final response = await http.delete(url);
 
+      print('Status Coide = ${response.statusCode}');
+
       if (response.statusCode != 200) {
         return false;
       } else {
