@@ -51,3 +51,13 @@ class UserFormatException extends TerminalAppExceptions {
 class NoUserException extends TerminalAppExceptions {
   const NoUserException([super.message = 'No User Found!!!']);
 }
+
+class NoFileEncoderException extends TerminalAppExceptions {
+  const NoFileEncoderException([super.message = 'No File Encoder provided!!!']);
+}
+
+class InvalidFileEncoderException extends TerminalAppExceptions {
+  const InvalidFileEncoderException([
+    super.message = 'Invalid File Encoder is provided!!!',
+  ]);
+}

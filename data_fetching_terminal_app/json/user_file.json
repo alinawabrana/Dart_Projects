@@ -1,0 +1,23 @@
+[
+    {
+        "id": 1,
+        "firstName": "ali",
+        "lastName": "nawa",
+        "dobYear": 2005,
+        "country": "pakistan"
+    },
+    {
+        "id": 3,
+        "firstName": "ali",
+        "lastName": "nawab",
+        "dobYear": 2000,
+        "country": "multan"
+    },
+    {
+        "id": 4,
+        "firstName": "ali",
+        "lastName": "hammad",
+        "dobYear": 2005,
+        "country": "pakistan"
+    }
+]

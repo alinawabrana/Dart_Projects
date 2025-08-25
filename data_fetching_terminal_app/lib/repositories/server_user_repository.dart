@@ -11,7 +11,7 @@
 //   Future<List<UserModel>> getAllUser();
 // }
 
-import 'package:data_fetching_terminal_app/data_repository_interface.dart';
+import 'package:data_fetching_terminal_app/interfaces/data_repository_interface.dart';
 import 'package:data_fetching_terminal_app/models/user_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
