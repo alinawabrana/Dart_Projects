@@ -16,6 +16,7 @@ void fetchUserData(List<String> arguments) async {
     String fileEncoder = 'lines';
     late LinesFileUserRepository userFileRepo;
     late JsonFileUserRepository userJsonFileRepo;
+    late BinaryFileUserRepository userBinaryFileRepo;
     // ServerUserRepository serverUserRepository = ServerUserRepository(
     //   baseUrl: '',
     // );
@@ -52,21 +53,31 @@ void fetchUserData(List<String> arguments) async {
       }
 
       userFileDirectory = File(
-        '${Directory.current.path}${Platform.pathSeparator}${fileEncoder == 'json' ? 'json${Platform.pathSeparator}user_file.json' : 'lines${Platform.pathSeparator}user_file.txt'}',
+        '${Directory.current.path}${Platform.pathSeparator}${fileEncoder == 'json'
+            ? 'json${Platform.pathSeparator}user_file.json'
+            : fileEncoder == 'binary'
+            ? 'binary${Platform.pathSeparator}user_file_binary.txt'
+            : 'lines${Platform.pathSeparator}user_file.txt'}',
       );
       idsFileDirectory = File(
-        '${Directory.current.path}${Platform.pathSeparator}lines${Platform.pathSeparator}id_file.txt',
+        '${Directory.current.path}${Platform.pathSeparator}${fileEncoder == 'binary' ? 'binary${Platform.pathSeparator}id_file_binary.txt' : 'lines${Platform.pathSeparator}id_file.txt'}',
       );
 
       if (!userFileDirectory.existsSync()) {
         userFileDirectory.createSync(recursive: true);
       }
-      if (fileEncoder == 'lines' && !idsFileDirectory.existsSync()) {
+      if ((fileEncoder == 'lines' || fileEncoder == 'binary') &&
+          !idsFileDirectory.existsSync()) {
         idsFileDirectory.createSync(recursive: true);
       }
 
       if (fileEncoder == 'json') {
         userJsonFileRepo = JsonFileUserRepository(userFile: userFileDirectory);
+      } else if (fileEncoder == 'binary') {
+        userBinaryFileRepo = BinaryFileUserRepository(
+          userFile: userFileDirectory,
+          idsFile: idsFileDirectory,
+        );
       } else {
         userFileRepo = LinesFileUserRepository(
           userFile: userFileDirectory,
@@ -100,6 +111,8 @@ void fetchUserData(List<String> arguments) async {
       final isUserCreated = arguments[0] == '-f'
           ? fileEncoder == 'json'
                 ? await userJsonFileRepo.createUser(user)
+                : fileEncoder == 'binary'
+                ? await userBinaryFileRepo.createUser(user)
                 : await userFileRepo.createUser(user)
           : await dbUserRepo.createUser(user);
 
@@ -112,6 +125,8 @@ void fetchUserData(List<String> arguments) async {
       final allUsers = arguments[0] == '-f'
           ? fileEncoder == 'json'
                 ? await userJsonFileRepo.getAllUser()
+                : fileEncoder == 'binary'
+                ? await userBinaryFileRepo.getAllUser()
                 : await userFileRepo.getAllUser()
           : await dbUserRepo.getAllUser();
 
@@ -127,6 +142,8 @@ void fetchUserData(List<String> arguments) async {
       final user = arguments[0] == '-f'
           ? fileEncoder == 'json'
                 ? await userJsonFileRepo.getUserByID(userID)
+                : fileEncoder == 'binary'
+                ? await userBinaryFileRepo.getUserByID(userID)
                 : await userFileRepo.getUserByID(userID)
           : await dbUserRepo.getUserByID(userID);
 
@@ -161,6 +178,8 @@ void fetchUserData(List<String> arguments) async {
       final isUpdated = arguments[0] == '-f'
           ? fileEncoder == 'json'
                 ? await userJsonFileRepo.updateUser(userID, user)
+                : fileEncoder == 'binary'
+                ? await userBinaryFileRepo.updateUser(userID, user)
                 : await userFileRepo.updateUser(userID, user)
           : await dbUserRepo.updateUser(userID, user);
 
@@ -176,6 +195,8 @@ void fetchUserData(List<String> arguments) async {
       final isDeleted = arguments[0] == '-f'
           ? fileEncoder == 'json'
                 ? await userJsonFileRepo.deleteUser(userID)
+                : fileEncoder == 'binary'
+                ? await userBinaryFileRepo.deleteUser(userID)
                 : await userFileRepo.deleteUser(userID)
           : await dbUserRepo.deleteUser(userID);
 
@@ -189,6 +210,8 @@ void fetchUserData(List<String> arguments) async {
       final isAllDeleted = arguments[0] == '-f'
           ? fileEncoder == 'json'
                 ? await userJsonFileRepo.deleteAllUser()
+                : fileEncoder == 'binary'
+                ? await userBinaryFileRepo.deleteAllUser()
                 : await userFileRepo.deleteAllUser()
           : await dbUserRepo.deleteAllUser();
 
@@ -204,7 +227,7 @@ void fetchUserData(List<String> arguments) async {
     }
   } on TerminalAppExceptions catch (e) {
     print(e.toString());
-    dbUserRepo.db.close();
+    if (arguments[0] == '-d') dbUserRepo.db.close();
     exit(-1);
   }
 }

@@ -23,3 +23,19 @@ Future<dynamic> readJsonFromFile(File file) async {
   if (jsonFileContent.isEmpty) return null;
   return jsonDecode(jsonFileContent);
 }
+
+String convertStringToBinary(String data) {
+  return data.codeUnits
+      .map((unit) => unit.toRadixString(2).padLeft(8, '0')) // 8-bit binary
+      .join(' ');
+}
+
+String convertBinaryToString(String binary) {
+  return String.fromCharCodes(
+    binary.split(" ").map((b) => int.parse(b, radix: 2)),
+  );
+}
+
+String convertIntToBinary(int data) {
+  return data.toRadixString(2);
+}
