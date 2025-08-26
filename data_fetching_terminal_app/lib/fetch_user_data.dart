@@ -106,8 +106,6 @@ void fetchUserData(List<String> arguments) async {
         country: data[3],
       );
 
-      print('User = ${user.toJson()}');
-
       final isUserCreated = arguments[0] == '-f'
           ? fileEncoder == 'json'
                 ? await userJsonFileRepo.createUser(user)
