@@ -42,6 +42,12 @@ class UserInputException extends TerminalAppExceptions {
   const UserInputException([super.message = 'No user data is provided!!!!']);
 }
 
+class UpdatedUserInputException extends TerminalAppExceptions {
+  const UpdatedUserInputException([
+    super.message = 'No user updated data is provided!!!!',
+  ]);
+}
+
 class UserFormatException extends TerminalAppExceptions {
   const UserFormatException([
     super.message = 'Invalid Format for user is provided!!!',

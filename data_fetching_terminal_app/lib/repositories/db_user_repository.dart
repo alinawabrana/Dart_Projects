@@ -5,7 +5,10 @@ import 'package:data_fetching_terminal_app/models/user_model.dart';
 import 'package:drift/drift.dart';
 
 class DbUserRepository implements UserRepository {
-  final db = UserDatabase();
+  final UserDatabase db;
+
+  DbUserRepository({required this.db});
+
   @override
   Future<bool> createUser(UserModel user) async {
     try {
@@ -18,9 +21,11 @@ class DbUserRepository implements UserRepository {
 
       await db.into(db.userTable).insert(newUser);
 
+      db.close();
       return true;
     } catch (e) {
       print('Error: $e');
+      db.close();
       return false;
     }
   }
@@ -29,9 +34,11 @@ class DbUserRepository implements UserRepository {
   Future<bool> deleteAllUser() async {
     try {
       await db.delete(db.userTable).go();
+      db.close();
       return true;
     } catch (e) {
       print('Error: $e');
+      db.close();
       return false;
     }
   }
@@ -40,9 +47,11 @@ class DbUserRepository implements UserRepository {
   Future<bool> deleteUser(int id) async {
     try {
       await (db.delete(db.userTable)..where((user) => user.id.equals(id))).go();
+      db.close();
       return true;
     } catch (e) {
       print('Error: $e');
+      db.close();
       return false;
     }
   }
@@ -51,11 +60,16 @@ class DbUserRepository implements UserRepository {
   Future<List<UserModel>> getAllUser() async {
     try {
       final data = await db.select(db.userTable).get();
-      if (data.isEmpty) return [];
+      if (data.isEmpty) {
+        db.close();
+        return [];
+      }
       final allUsers = data.map((d) => d.toUserModel()).toList();
+      db.close();
       return allUsers;
     } catch (e) {
       print('Error: $e');
+      db.close();
       return [];
     }
   }
@@ -66,11 +80,16 @@ class DbUserRepository implements UserRepository {
       final data = await (db.select(
         db.userTable,
       )..where((user) => user.id.equals(id))).getSingleOrNull();
-      if (data == null) return null;
+      if (data == null) {
+        db.close();
+        return null;
+      }
       final currentUser = data.toUserModel();
+      db.close();
       return currentUser;
     } catch (e) {
       print('Error: $e');
+      db.close();
       return null;
     }
   }
@@ -86,9 +105,11 @@ class DbUserRepository implements UserRepository {
       );
 
       await db.update(db.userTable).write(updatedUser);
+      db.close();
       return true;
     } catch (e) {
       print('Error: $e');
+      db.close();
       return false;
     }
   }

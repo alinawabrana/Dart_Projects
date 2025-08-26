@@ -1,13 +1,27 @@
 import 'dart:io';
 
+import 'package:data_fetching_terminal_app/database/user_database.dart';
 import 'package:data_fetching_terminal_app/exceptions/exceptions.dart';
 import 'package:data_fetching_terminal_app/helper_functions/helpers.dart';
 import 'package:data_fetching_terminal_app/models/user_model.dart';
+import 'package:data_fetching_terminal_app/repositories/db_user_repository.dart';
 import 'package:data_fetching_terminal_app/repositories/file_user_repository.dart';
 import 'package:data_fetching_terminal_app/validators/validators.dart';
 
 void fetchUserData(List<String> arguments) async {
+  late DbUserRepository dbUserRepo;
   try {
+    late File userFileDirectory;
+    late File idsFileDirectory;
+    String fileEncoder = 'lines';
+    late LinesFileUserRepository userFileRepo;
+    late JsonFileUserRepository userJsonFileRepo;
+    // ServerUserRepository serverUserRepository = ServerUserRepository(
+    //   baseUrl: '',
+    // );
+
+    if (arguments[0] == '-d') dbUserRepo = DbUserRepository(db: UserDatabase());
+
     if ((arguments[1] == '--find' ||
             arguments[1] == '--del' ||
             arguments[1] == '--up') &&
@@ -16,18 +30,6 @@ void fetchUserData(List<String> arguments) async {
         'You have either not provided the ID or the provided argument[2] is Invalid.',
       );
     }
-
-    File userFileDirectory = File('');
-    File idsFileDirectory = File('');
-    String fileEncoder = 'lines';
-    FileUserRepository userFileRepo = FileUserRepository(
-      userFile: userFileDirectory,
-      idsFile: idsFileDirectory,
-      fileEncoder: fileEncoder,
-    );
-    // ServerUserRepository serverUserRepository = ServerUserRepository(
-    //   baseUrl: '',
-    // );
 
     if (arguments[0] == '-f') {
       if ((arguments[1] == '--find' ||
@@ -63,17 +65,15 @@ void fetchUserData(List<String> arguments) async {
         idsFileDirectory.createSync(recursive: true);
       }
 
-      userFileRepo = FileUserRepository(
-        userFile: userFileDirectory,
-        idsFile: idsFileDirectory,
-        fileEncoder: fileEncoder,
-      );
+      if (fileEncoder == 'json') {
+        userJsonFileRepo = JsonFileUserRepository(userFile: userFileDirectory);
+      } else {
+        userFileRepo = LinesFileUserRepository(
+          userFile: userFileDirectory,
+          idsFile: idsFileDirectory,
+        );
+      }
     }
-    // else {
-    //   serverUserRepository = ServerUserRepository(
-    //     baseUrl: 'https://api.restful-api.dev/objects',
-    //   );
-    // }
     if (arguments[1] == '-u') {
       if (arguments.length == 2) {
         throw UserInputException(
@@ -97,11 +97,11 @@ void fetchUserData(List<String> arguments) async {
 
       print('User = ${user.toJson()}');
 
-      // final isUserCreated = arguments[0] == '-f'
-      //     ? await userFileRepo.createUser(user)
-      //     : await serverUserRepository.createUser(user);
-
-      final isUserCreated = await userFileRepo.createUser(user);
+      final isUserCreated = arguments[0] == '-f'
+          ? fileEncoder == 'json'
+                ? await userJsonFileRepo.createUser(user)
+                : await userFileRepo.createUser(user)
+          : await dbUserRepo.createUser(user);
 
       if (!isUserCreated) {
         print('Failed to create the User');
@@ -109,11 +109,11 @@ void fetchUserData(List<String> arguments) async {
       }
       print('User Created Successfully');
     } else if (arguments[1] == '--list') {
-      // final allUsers = arguments[0] == '-f'
-      //     ? await userFileRepo.getAllUser()
-      //     : await serverUserRepository.getAllUser();
-
-      final allUsers = await userFileRepo.getAllUser();
+      final allUsers = arguments[0] == '-f'
+          ? fileEncoder == 'json'
+                ? await userJsonFileRepo.getAllUser()
+                : await userFileRepo.getAllUser()
+          : await dbUserRepo.getAllUser();
 
       if (allUsers.isEmpty) {
         print('No User is Found');
@@ -124,11 +124,11 @@ void fetchUserData(List<String> arguments) async {
     } else if (arguments[1] == '--find') {
       final userID = isValidint(arguments[2]);
 
-      // final user = arguments[0] == '-f'
-      //     ? await userFileRepo.getUserByID(userID)
-      //     : await serverUserRepository.getUserByID(userID);
-
-      final user = await userFileRepo.getUserByID(userID);
+      final user = arguments[0] == '-f'
+          ? fileEncoder == 'json'
+                ? await userJsonFileRepo.getUserByID(userID)
+                : await userFileRepo.getUserByID(userID)
+          : await dbUserRepo.getUserByID(userID);
 
       if (user == null) {
         throw NoUserException('No User with id: $userID is Found');
@@ -137,16 +137,14 @@ void fetchUserData(List<String> arguments) async {
       print('User = $user');
     } else if (arguments[1] == '--up') {
       if (arguments.length == 3) {
-        print(
+        throw UpdatedUserInputException(
           'You have not provided the updated data.\nPlease provide the updated user data in the format: firstName,lastName,Year of Birth,Country',
         );
-        return;
       } else if (arguments[3].split(',').length != 4 ||
           !validateUser.hasMatch(arguments[3])) {
-        print(
+        throw InvalidInputException(
           "The format for user information is not valid. It should be as follow and each field is mandatory:\nfirstName,lastName,Year of Birth,Country",
         );
-        return;
       }
 
       final data = arguments[3].split(',');
@@ -160,11 +158,11 @@ void fetchUserData(List<String> arguments) async {
 
       final userID = isValidint(arguments[2]);
 
-      // final isUpdated = arguments[0] == '-f'
-      //     ? await userFileRepo.updateUser(userID, user)
-      //     : await serverUserRepository.updateUser(userID, user);
-
-      final isUpdated = await userFileRepo.updateUser(userID, user);
+      final isUpdated = arguments[0] == '-f'
+          ? fileEncoder == 'json'
+                ? await userJsonFileRepo.updateUser(userID, user)
+                : await userFileRepo.updateUser(userID, user)
+          : await dbUserRepo.updateUser(userID, user);
 
       if (!isUpdated) {
         throw NoUserException(
@@ -175,11 +173,11 @@ void fetchUserData(List<String> arguments) async {
     } else if (arguments[1] == '--del') {
       final userID = isValidint(arguments[2]);
 
-      // final isDeleted = arguments[0] == '-f'
-      //     ? await userFileRepo.deleteUser(userID)
-      //     : await serverUserRepository.deleteUser(userID);
-
-      final isDeleted = await userFileRepo.deleteUser(userID);
+      final isDeleted = arguments[0] == '-f'
+          ? fileEncoder == 'json'
+                ? await userJsonFileRepo.deleteUser(userID)
+                : await userFileRepo.deleteUser(userID)
+          : await dbUserRepo.deleteUser(userID);
 
       if (!isDeleted) {
         throw NoUserException(
@@ -188,11 +186,11 @@ void fetchUserData(List<String> arguments) async {
       }
       print('User Deleted Successfully');
     } else if (arguments[1] == '--del-all') {
-      // final isAllDeleted = arguments[0] == '-f'
-      //     ? await userFileRepo.deleteAllUser()
-      //     : await serverUserRepository.deleteAllUser();
-
-      final isAllDeleted = await userFileRepo.deleteAllUser();
+      final isAllDeleted = arguments[0] == '-f'
+          ? fileEncoder == 'json'
+                ? await userJsonFileRepo.deleteAllUser()
+                : await userFileRepo.deleteAllUser()
+          : await dbUserRepo.deleteAllUser();
 
       if (!isAllDeleted) {
         print('Failed to delete all Users');
@@ -206,6 +204,7 @@ void fetchUserData(List<String> arguments) async {
     }
   } on TerminalAppExceptions catch (e) {
     print(e.toString());
+    dbUserRepo.db.close();
     exit(-1);
   }
 }
