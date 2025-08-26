@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:data_fetching_terminal_app/helper_functions/helpers.dart';
 import 'package:data_fetching_terminal_app/interfaces/data_repository_interface.dart';
@@ -243,6 +244,7 @@ class FileUserRepository implements UserRepository {
       }
 
       await userFile.writeAsString('');
+
       for (int i = 0; i < fileData.length; i = i + 6) {
         if (int.parse(fileData[0 + i]) == id) {
           fileData[1 + i] = updatedData.firstName;
