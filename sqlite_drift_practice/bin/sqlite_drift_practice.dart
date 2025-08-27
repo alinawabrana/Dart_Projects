@@ -32,14 +32,14 @@ void main(List<String> arguments) async {
 
     //------------------------ UPDATE COMMANDS ----------------------------------//
 
-    final updatedTodo = TodoItemsCompanion(
-      title: Value('Ali Nawab Rana'),
-      content: Value('This is the content related to ALi Nawab Rana'),
-    );
+    // final updatedTodo = TodoItemsCompanion(
+    //   title: Value('Ali Nawab Rana'),
+    //   content: Value('This is the content related to ALi Nawab Rana'),
+    // );
 
-    await (db.update(
-      db.todoItems,
-    )..where((item) => item.id.equals(3))).write(updatedTodo);
+    // await (db.update(
+    //   db.todoItems,
+    // )..where((item) => item.id.equals(3))).write(updatedTodo);
 
     //Only Updating the title of all the todos
     // final updatedTitleOfAll = TodoItemsCompanion.custom(
@@ -50,36 +50,56 @@ void main(List<String> arguments) async {
 
     //------------------------ SELECT COMMANDS ----------------------------------//
 
-    final todo = await (db.select(
-      db.todoItems,
-    )..where((item) => item.id.equals(1))).get();
+    // final todo = await (db.select(
+    //   db.todoItems,
+    // )..where((item) => item.id.equals(1))).get();
 
-    final limitTodo = await (db.select(
-      db.todoItems,
-    )..limit(2, offset: 1)).get();
+    // final limitTodo = await (db.select(
+    //   db.todoItems,
+    // )..limit(2, offset: 1)).get();
 
-    final orderedTodo =
-        await (db.select(db.todoItems)..orderBy([
-              (item) => OrderingTerm(
-                expression: item.createdAt,
-                mode: OrderingMode.desc,
-              ),
-            ]))
-            .get();
+    // final orderedTodo =
+    //     await (db.select(db.todoItems)..orderBy([
+    //           (item) => OrderingTerm(
+    //             expression: item.createdAt,
+    //             mode: OrderingMode.desc,
+    //           ),
+    //         ]))
+    //         .get();
 
-    final query = (db.select(db.todoItems)
-      ..where((item) => item.content.length.isBiggerOrEqualValue(16)));
+    // final query = (db.select(db.todoItems)
+    //   ..where((item) => item.content.length.isBiggerOrEqualValue(16)));
 
-    final bigContents = await query.map((item) => item.content).get();
+    // final bigContents = await query.map((item) => item.content).get();
 
-    final allTodoData = await db.select(db.todoItems).get();
-    final allAlbumData = await db.select(db.albums).get();
-    print('All todo data = ${allTodoData.toString()}');
-    print('All Album data = ${allAlbumData.toString()}');
-    print('Todo = $todo');
-    print('Limited Todo = $limitTodo');
-    print('Ordered Todo = $orderedTodo');
-    print('Content having length greater than 16 = $bigContents');
+    // final allTodoData = await db.select(db.todoItems).get();
+    // final allAlbumData = await db.select(db.albums).get();
+    // print('All todo data = ${allTodoData.toString()}');
+    // print('All Album data = ${allAlbumData.toString()}');
+    // print('Todo = $todo');
+    // print('Limited Todo = $limitTodo');
+    // print('Ordered Todo = $orderedTodo');
+    // print('Content having length greater than 16 = $bigContents');
+
+    //------------------------ DEALING WITH TABLES WITH REFERENCES ----------------------------------//
+
+    // final artistData = ArtistCompanion.insert(name: 'Ali Hammad Rana');
+
+    // await db.into(db.artist).insert(artistData);
+
+    final albumData = AlbumsCompanion.insert(
+      name: "Ali Nawab's Album",
+      artist: 2,
+    );
+
+    await db.into(db.albums).insert(albumData);
+
+    final allArtists = await db.select(db.artist).get();
+    print('All Artists = $allArtists');
+
+    final allAlbums = await db.select(db.albums).get();
+    print('All Albums = $allAlbums');
+
     await db.close();
   } catch (e) {
     print('Error: $e');
