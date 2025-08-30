@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:data_fetching_terminal_app/helper_functions/helpers.dart';
+import 'package:data_fetching_terminal_app/utils/helper_functions/helpers.dart';
 import 'package:data_fetching_terminal_app/models/user_model.dart';
 
 Future<bool> createLinesOrBinaryFile(

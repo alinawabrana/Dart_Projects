@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:data_fetching_terminal_app/helper_functions/files_helpers.dart';
-import 'package:data_fetching_terminal_app/helper_functions/helpers.dart';
+import 'package:data_fetching_terminal_app/utils/helper_functions/files_helpers.dart';
+import 'package:data_fetching_terminal_app/utils/helper_functions/helpers.dart';
 import 'package:data_fetching_terminal_app/interfaces/data_repository_interface.dart';
 import 'package:data_fetching_terminal_app/models/user_model.dart';
 import 'dart:io';

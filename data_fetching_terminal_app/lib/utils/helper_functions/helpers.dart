@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:data_fetching_terminal_app/exceptions/exceptions.dart';
+import 'package:data_fetching_terminal_app/utils/exceptions/exceptions.dart';
 
 int isValidint(var input) {
   try {

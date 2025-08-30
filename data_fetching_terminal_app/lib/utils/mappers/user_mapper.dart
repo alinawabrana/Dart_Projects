@@ -1,6 +1,6 @@
 import 'package:data_fetching_terminal_app/models/user_model.dart';
 
-import '../database/user_database.dart';
+import '../../database/user_database.dart';
 
 extension UserMapper on UserTableData {
   UserModel toUserModel() => UserModel(

@@ -1,16 +1,14 @@
 import 'dart:io';
 
 import 'package:data_fetching_terminal_app/database/user_database.dart';
-import 'package:data_fetching_terminal_app/exceptions/exceptions.dart';
+import 'package:data_fetching_terminal_app/utils/enums/enums.dart';
+import 'package:data_fetching_terminal_app/utils/exceptions/exceptions.dart';
 import 'package:data_fetching_terminal_app/utils/helper_functions/helpers.dart';
 import 'package:data_fetching_terminal_app/models/user_model.dart';
 import 'package:data_fetching_terminal_app/repositories/db_user_repository.dart';
 import 'package:data_fetching_terminal_app/repositories/file_user_repository.dart';
 
-void fetchUserData(
-  List<String> arguments, {
-  String fileEncoder = 'lines',
-}) async {
+void fetchUserData(List<String> arguments, String? fileEncoder) async {
   late DbUserRepository dbUserRepo;
   try {
     late File userFileDirectory;
@@ -22,31 +20,34 @@ void fetchUserData(
     //   baseUrl: '',
     // );
 
-    if (arguments[0] == '-d') dbUserRepo = DbUserRepository(db: UserDatabase());
-
-    if (arguments[0] == '-f') {
+    if (arguments[0] == Services.database.identifier) {
+      dbUserRepo = DbUserRepository(db: UserDatabase());
+    } else if (arguments[0] == Services.file.identifier) {
       userFileDirectory = File(
-        '${Directory.current.path}${Platform.pathSeparator}${fileEncoder == 'json'
+        '${Directory.current.path}${Platform.pathSeparator}${fileEncoder == Encoders.json.identifier
             ? 'json${Platform.pathSeparator}user_file.json'
-            : fileEncoder == 'binary'
+            : fileEncoder == Encoders.binary.identifier
             ? 'binary${Platform.pathSeparator}user_file_binary.txt'
             : 'lines${Platform.pathSeparator}user_file.txt'}',
       );
       idsFileDirectory = File(
-        '${Directory.current.path}${Platform.pathSeparator}${fileEncoder == 'binary' ? 'binary${Platform.pathSeparator}id_file_binary.txt' : 'lines${Platform.pathSeparator}id_file.txt'}',
+        '${Directory.current.path}${Platform.pathSeparator}${fileEncoder == Encoders.binary.identifier ? 'binary${Platform.pathSeparator}id_file_binary.txt' : 'lines${Platform.pathSeparator}id_file.txt'}',
       );
 
       if (!userFileDirectory.existsSync()) {
         userFileDirectory.createSync(recursive: true);
       }
-      if ((fileEncoder == 'lines' || fileEncoder == 'binary') &&
+      if ([
+            Encoders.binary.identifier,
+            Encoders.lines.identifier,
+          ].contains(fileEncoder) &&
           !idsFileDirectory.existsSync()) {
         idsFileDirectory.createSync(recursive: true);
       }
 
-      if (fileEncoder == 'json') {
+      if (fileEncoder == Encoders.json.identifier) {
         userJsonFileRepo = JsonFileUserRepository(userFile: userFileDirectory);
-      } else if (fileEncoder == 'binary') {
+      } else if (fileEncoder == Encoders.binary.identifier) {
         userBinaryFileRepo = BinaryFileUserRepository(
           userFile: userFileDirectory,
           idsFile: idsFileDirectory,
@@ -58,7 +59,7 @@ void fetchUserData(
         );
       }
     }
-    if (arguments[1] == '-u') {
+    if (arguments[1] == Operations.create.identifier) {
       final data = arguments[2].split(',');
 
       final user = UserModel(
@@ -68,10 +69,10 @@ void fetchUserData(
         country: data[3],
       );
 
-      final isUserCreated = arguments[0] == '-f'
-          ? fileEncoder == 'json'
+      final isUserCreated = arguments[0] == Services.file.identifier
+          ? fileEncoder == Encoders.json.identifier
                 ? await userJsonFileRepo.createUser(user)
-                : fileEncoder == 'binary'
+                : fileEncoder == Encoders.binary.identifier
                 ? await userBinaryFileRepo.createUser(user)
                 : await userFileRepo.createUser(user)
           : await dbUserRepo.createUser(user);
@@ -81,11 +82,11 @@ void fetchUserData(
         return;
       }
       print('User Created Successfully');
-    } else if (arguments[1] == '--list') {
-      final allUsers = arguments[0] == '-f'
-          ? fileEncoder == 'json'
+    } else if (arguments[1] == Operations.getAll.identifier) {
+      final allUsers = arguments[0] == Services.file.identifier
+          ? fileEncoder == Encoders.json.identifier
                 ? await userJsonFileRepo.getAllUser()
-                : fileEncoder == 'binary'
+                : fileEncoder == Encoders.binary.identifier
                 ? await userBinaryFileRepo.getAllUser()
                 : await userFileRepo.getAllUser()
           : await dbUserRepo.getAllUser();
@@ -96,13 +97,13 @@ void fetchUserData(
       }
 
       print('All Users = $allUsers');
-    } else if (arguments[1] == '--find') {
+    } else if (arguments[1] == Operations.getUserbyId.identifier) {
       final userID = isValidint(arguments[2]);
 
-      final user = arguments[0] == '-f'
-          ? fileEncoder == 'json'
+      final user = arguments[0] == Services.file.identifier
+          ? fileEncoder == Encoders.json.identifier
                 ? await userJsonFileRepo.getUserByID(userID)
-                : fileEncoder == 'binary'
+                : fileEncoder == Encoders.binary.identifier
                 ? await userBinaryFileRepo.getUserByID(userID)
                 : await userFileRepo.getUserByID(userID)
           : await dbUserRepo.getUserByID(userID);
@@ -112,7 +113,7 @@ void fetchUserData(
       }
 
       print('User = $user');
-    } else if (arguments[1] == '--up') {
+    } else if (arguments[1] == Operations.update.identifier) {
       final data = arguments[3].split(',');
 
       final user = UserModel(
@@ -124,10 +125,10 @@ void fetchUserData(
 
       final userID = isValidint(arguments[2]);
 
-      final isUpdated = arguments[0] == '-f'
-          ? fileEncoder == 'json'
+      final isUpdated = arguments[0] == Services.file.identifier
+          ? fileEncoder == Encoders.json.identifier
                 ? await userJsonFileRepo.updateUser(userID, user)
-                : fileEncoder == 'binary'
+                : fileEncoder == Encoders.binary.identifier
                 ? await userBinaryFileRepo.updateUser(userID, user)
                 : await userFileRepo.updateUser(userID, user)
           : await dbUserRepo.updateUser(userID, user);
@@ -138,13 +139,13 @@ void fetchUserData(
         );
       }
       print('User Updated Successfully');
-    } else if (arguments[1] == '--del') {
+    } else if (arguments[1] == Operations.deleteUserById.identifier) {
       final userID = isValidint(arguments[2]);
 
-      final isDeleted = arguments[0] == '-f'
-          ? fileEncoder == 'json'
+      final isDeleted = arguments[0] == Services.file.identifier
+          ? fileEncoder == Encoders.json.identifier
                 ? await userJsonFileRepo.deleteUser(userID)
-                : fileEncoder == 'binary'
+                : fileEncoder == Encoders.binary.identifier
                 ? await userBinaryFileRepo.deleteUser(userID)
                 : await userFileRepo.deleteUser(userID)
           : await dbUserRepo.deleteUser(userID);
@@ -155,11 +156,11 @@ void fetchUserData(
         );
       }
       print('User Deleted Successfully');
-    } else if (arguments[1] == '--del-all') {
-      final isAllDeleted = arguments[0] == '-f'
-          ? fileEncoder == 'json'
+    } else if (arguments[1] == Operations.deleteAll.identifier) {
+      final isAllDeleted = arguments[0] == Services.file.identifier
+          ? fileEncoder == Encoders.json.identifier
                 ? await userJsonFileRepo.deleteAllUser()
-                : fileEncoder == 'binary'
+                : fileEncoder == Encoders.binary.identifier
                 ? await userBinaryFileRepo.deleteAllUser()
                 : await userFileRepo.deleteAllUser()
           : await dbUserRepo.deleteAllUser();
@@ -176,7 +177,7 @@ void fetchUserData(
     }
   } on TerminalAppExceptions catch (e) {
     print(e.toString());
-    if (arguments[0] == '-d') dbUserRepo.db.close();
+    if (arguments[0] == Services.database.identifier) dbUserRepo.db.close();
     exit(-1);
   }
 }

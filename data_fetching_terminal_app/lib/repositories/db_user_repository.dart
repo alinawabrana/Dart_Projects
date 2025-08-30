@@ -1,6 +1,6 @@
 import 'package:data_fetching_terminal_app/database/user_database.dart';
 import 'package:data_fetching_terminal_app/interfaces/data_repository_interface.dart';
-import 'package:data_fetching_terminal_app/mappers/user_mapper.dart';
+import 'package:data_fetching_terminal_app/utils/mappers/user_mapper.dart';
 import 'package:data_fetching_terminal_app/models/user_model.dart';
 import 'package:drift/drift.dart';
 
