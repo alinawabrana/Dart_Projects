@@ -2,18 +2,19 @@ import 'dart:io';
 
 import 'package:data_fetching_terminal_app/database/user_database.dart';
 import 'package:data_fetching_terminal_app/exceptions/exceptions.dart';
-import 'package:data_fetching_terminal_app/helper_functions/helpers.dart';
+import 'package:data_fetching_terminal_app/utils/helper_functions/helpers.dart';
 import 'package:data_fetching_terminal_app/models/user_model.dart';
 import 'package:data_fetching_terminal_app/repositories/db_user_repository.dart';
 import 'package:data_fetching_terminal_app/repositories/file_user_repository.dart';
-import 'package:data_fetching_terminal_app/validators/validators.dart';
 
-void fetchUserData(List<String> arguments) async {
+void fetchUserData(
+  List<String> arguments, {
+  String fileEncoder = 'lines',
+}) async {
   late DbUserRepository dbUserRepo;
   try {
     late File userFileDirectory;
     late File idsFileDirectory;
-    String fileEncoder = 'lines';
     late LinesFileUserRepository userFileRepo;
     late JsonFileUserRepository userJsonFileRepo;
     late BinaryFileUserRepository userBinaryFileRepo;
@@ -23,35 +24,7 @@ void fetchUserData(List<String> arguments) async {
 
     if (arguments[0] == '-d') dbUserRepo = DbUserRepository(db: UserDatabase());
 
-    if ((arguments[1] == '--find' ||
-            arguments[1] == '--del' ||
-            arguments[1] == '--up') &&
-        (arguments.length == 2 || !validateId.hasMatch(arguments[2]))) {
-      throw NoIdException(
-        'You have either not provided the ID or the provided argument[2] is Invalid.',
-      );
-    }
-
     if (arguments[0] == '-f') {
-      if ((arguments[1] == '--find' ||
-          arguments[1] == '--del' ||
-          arguments[1] == '-u')) {
-        if (arguments.length >= 4) {
-          validatingEncoderArguments(arguments, 3);
-          fileEncoder = arguments[4];
-        }
-      } else if (arguments[1] == '--list' || arguments[1] == '--del-all') {
-        if (arguments.length >= 3) {
-          validatingEncoderArguments(arguments, 2);
-          fileEncoder = arguments[3];
-        }
-      } else if (arguments[1] == '--up') {
-        if (arguments.length >= 5) {
-          validatingEncoderArguments(arguments, 4);
-          fileEncoder = arguments[5];
-        }
-      }
-
       userFileDirectory = File(
         '${Directory.current.path}${Platform.pathSeparator}${fileEncoder == 'json'
             ? 'json${Platform.pathSeparator}user_file.json'
@@ -86,17 +59,6 @@ void fetchUserData(List<String> arguments) async {
       }
     }
     if (arguments[1] == '-u') {
-      if (arguments.length == 2) {
-        throw UserInputException(
-          "You haven't entered the user information to be added. The format should be as follow:\nfirstName,lastName,Year of Birth(INTEGER),Country",
-        );
-      } else if (arguments[2].split(',').length != 4 ||
-          !validateUser.hasMatch(arguments[2])) {
-        throw UserFormatException(
-          "The format for user information is not valid. It should be as follow and each field is mandatory:\nfirstName,lastName,Year of Birth,Country",
-        );
-      }
-
       final data = arguments[2].split(',');
 
       final user = UserModel(
@@ -151,17 +113,6 @@ void fetchUserData(List<String> arguments) async {
 
       print('User = $user');
     } else if (arguments[1] == '--up') {
-      if (arguments.length == 3) {
-        throw UpdatedUserInputException(
-          'You have not provided the updated data.\nPlease provide the updated user data in the format: firstName,lastName,Year of Birth,Country',
-        );
-      } else if (arguments[3].split(',').length != 4 ||
-          !validateUser.hasMatch(arguments[3])) {
-        throw InvalidInputException(
-          "The format for user information is not valid. It should be as follow and each field is mandatory:\nfirstName,lastName,Year of Birth,Country",
-        );
-      }
-
       final data = arguments[3].split(',');
 
       final user = UserModel(

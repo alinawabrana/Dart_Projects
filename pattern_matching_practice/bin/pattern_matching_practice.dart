@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:pattern_matching_practice/pattern_matching_functions/pattern_functions.dart';
 
 class UserInfo {
@@ -237,6 +235,8 @@ void main(List<String> arguments) {
   //-------------------------- Regular Expression (Regex) Pattern Matching -----------------------------//
 
   // regexPatternMatching();
+
+  // advancedRegexPatternMatching();
 
   //-------------------------- Matching constants -----------------------------//
 
