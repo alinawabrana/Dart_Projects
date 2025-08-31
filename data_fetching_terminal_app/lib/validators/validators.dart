@@ -16,7 +16,10 @@ void validatingEncoderArguments(
     throw NoFileEncoderException(
       "You haven't provided the file encoder. Encoders can be:\n(1) lines (2) json (3) binary",
     );
-  } else if (Encoders.fromIdentifier(arguments[indexOfEncoderArgument + 1]) ==
+  } else if (IdentifiableEnum.fromIdentifier(
+        Encoders.values,
+        arguments[indexOfEncoderArgument + 1],
+      ) ==
       null) {
     throw InvalidFileEncoderException(
       "Invlaid encoder is provided. Encoders can be:\n(1) lines (2) json (3) binary",

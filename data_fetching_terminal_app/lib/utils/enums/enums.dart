@@ -1,19 +1,17 @@
-enum Services {
+mixin Identifier {
+  String get identifier;
+}
+
+enum Services with Identifier {
   file(identifier: '-f'),
   database(identifier: '-d');
 
+  @override
   final String identifier;
   const Services({required this.identifier});
-
-  static String? fromIdentifier(String input) {
-    for (final Services(identifier: identity) in Services.values) {
-      if (identity == input) return identity;
-    }
-    return null;
-  }
 }
 
-enum Operations {
+enum Operations with Identifier {
   create(identifier: '-u'),
   update(identifier: '--up'),
   getUserbyId(identifier: '--find'),
@@ -21,28 +19,28 @@ enum Operations {
   deleteUserById(identifier: '--del'),
   deleteAll(identifier: '--del-all');
 
+  @override
   final String identifier;
   const Operations({required this.identifier});
-
-  static String? fromIdentifier(String input) {
-    for (final Operations(identifier: identity) in Operations.values) {
-      if (identity == input) return identity;
-    }
-    return null;
-  }
 }
 
-enum Encoders {
+enum Encoders with Identifier {
   lines(identifier: 'lines'),
   json(identifier: 'json'),
   binary(identifier: 'binary');
 
+  @override
   final String identifier;
   const Encoders({required this.identifier});
+}
 
-  static String? fromIdentifier(String input) {
-    for (final Encoders(identifier: identity) in Encoders.values) {
-      if (identity == input) return identity;
+extension IdentifiableEnum on Identifier {
+  static String? fromIdentifier<T extends Identifier>(
+    List<T> values,
+    String input,
+  ) {
+    for (final T(identifier: identifier) in values) {
+      if (identifier == input) return identifier;
     }
     return null;
   }
