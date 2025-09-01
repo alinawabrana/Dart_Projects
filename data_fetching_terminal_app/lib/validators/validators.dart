@@ -1,5 +1,6 @@
 import 'package:data_fetching_terminal_app/utils/enums/enums.dart';
 import 'package:data_fetching_terminal_app/utils/exceptions/exceptions.dart';
+import 'package:data_fetching_terminal_app/utils/mappers/identifier_mapper.dart';
 
 final validateUser = RegExp(r"^[a-zA-Z]+,[a-zA-Z]+,[0-9]{4},[a-zA-Z]+$");
 final validateId = RegExp(r"^[0-9]+$");

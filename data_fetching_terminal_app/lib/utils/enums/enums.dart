@@ -33,15 +33,3 @@ enum Encoders with Identifier {
   final String identifier;
   const Encoders({required this.identifier});
 }
-
-extension IdentifiableEnum on Identifier {
-  static String? fromIdentifier<T extends Identifier>(
-    List<T> values,
-    String input,
-  ) {
-    for (final T(identifier: identifier) in values) {
-      if (identifier == input) return identifier;
-    }
-    return null;
-  }
-}

@@ -25,7 +25,7 @@ Future<dynamic> readJsonFromFile(File file) async {
 }
 
 String convertStringToBinary(String data) {
-  return data.codeUnits
+  return data.runes
       .map((unit) => unit.toRadixString(2).padLeft(8, '0')) // 8-bit binary
       .join(' ');
 }

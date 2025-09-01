@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:data_fetching_terminal_app/utils/enums/enums.dart';
 import 'package:data_fetching_terminal_app/utils/exceptions/exceptions.dart';
 import 'package:data_fetching_terminal_app/fetch_user_data.dart';
+import 'package:data_fetching_terminal_app/utils/mappers/identifier_mapper.dart';
 import 'package:data_fetching_terminal_app/validators/validators.dart';
 
 class ArgParserController {
